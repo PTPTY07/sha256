@@ -1,21 +1,22 @@
 #include <stdio.h>
 #include <string.h>
 #include <openssl/sha.h>  // Per SHA256
-//linux: sudo apt update
-//linux: sudo apt install libssl-dev
-//compilare: gcc programma.c -o programma -lcrypto
-//eseguire: ./programma
+//sudo apt update
+//sudo apt install build-essential libssl-dev
+//gcc autenticazione.c -o autenticazione -lcrypto
+
 int main() {
     char input[1024];     // Buffer per l'input dell'utente
     char messaggio[1024]; // Buffer per il messaggio
-    char chiave[11];      // Ultimi 10 caratteri = chiave (+1 per il terminatore '\0')
+    char chiave[1024];      // Ultimi 10 caratteri = chiave (+1 per il terminatore '\0')
 
     // 1. Chiedere input all'utente
     printf("Messaggio con chiave: ");
     fgets(input, sizeof(input), stdin);
 
     // Rimuove eventuale '\n' lasciato da fgets
-    input[strcspn(input, "\n")] = '\0';
+    int pos = strcspn(input, "\n");
+    input[pos] = '\0';
 
     // 2. Separare chiave (ultimi 10 caratteri) e messaggio (resto)
     int len = strlen(input);
@@ -47,6 +48,17 @@ int main() {
     printf("Messaggio: %s\n", messaggio);
     printf("Chiave: %s\n", chiave);
     printf("SHA256: %s\n", hash_hex);
+    
+     FILE *fp = fopen("output.txt", "w");
+    if (fp == NULL) {
+        perror("Errore nell'apertura del file");
+        return 1;
+    }
+
+    fprintf(fp, "%s\n", messaggio);  // Scrive il messaggio
+    fprintf(fp, "%s\n", hash_hex);   // Scrive l'hash
+    fclose(fp);
 
     return 0;
 }
+
